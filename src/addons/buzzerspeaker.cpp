@@ -34,11 +34,26 @@ void BuzzerSpeakerAddon::setup() {
 }
 
 void BuzzerSpeakerAddon::process() {
-	if (!introPlayed) {
-		playIntro();
-	}
+    if (!introPlayed) {
+        playIntro();
+    }
 
-	processBuzzer();
+    // --- 开始：按键声音逻辑 ---
+    Gamepad * gamepad = Storage::getInstance().GetGamepad();
+    static uint32_t lastButtonState = 0;
+    uint32_t currentButtonState = gamepad->state.buttons;
+
+    // 检测是否有新按键被按下 (边缘检测)
+    uint32_t pressedButtons = (currentButtonState ^ lastButtonState) & currentButtonState;
+
+    if (pressedButtons) {
+        // 播放 2000Hz 的声音，持续 30ms
+        playTone(2000, 30);
+    }
+    lastButtonState = currentButtonState;
+    // --- 结束：按键声音逻辑 ---
+
+    processBuzzer();
 }
 
 void BuzzerSpeakerAddon::playIntro() {
